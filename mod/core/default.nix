@@ -70,6 +70,10 @@
   #
   #  /etc/profiles/per-user/mor/etc/profile.d/hm-session-vars.sh
   #
+  home.sessionPath = [
+    "$HOME/.cargo/bin"
+
+  ];
   home.sessionVariables = {
     # EDITOR = "emacs";
   };
