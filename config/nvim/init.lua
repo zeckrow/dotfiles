@@ -18,7 +18,7 @@ opt.mouse = "a"
 opt.undofile = true
 opt.swapfile = false
 --::
---::no auto comment on new line
+--::disable auto comment on new line
 vim.api.nvim_create_autocmd("FileType", {
 	group = vim.api.nvim_create_augroup("no_auto_comment", {}),
 	callback = function()
@@ -26,7 +26,6 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 --::
-
 --::cursor highlight
 vim.api.nvim_create_autocmd("LspAttach", {
 	callback = function(args)
@@ -67,8 +66,23 @@ keymap("n", "<S-Tab>", ":bprevious<CR>")
 --::lsp setup
 vim.pack.add({
 	{ src = "https://github.com/neovim/nvim-lspconfig" },
+	{ src = "https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim" },
+	{ src = "https://github.com/mason-org/mason.nvim" },
 	{ src = "https://github.com/nvim-tree/nvim-web-devicons" },
 })
+require("mason").setup()
+
+require("mason-tool-installer").setup({
+	ensure_installed = {
+		"lua-language-server",
+		"rust-analyzer",
+		"clangd",
+	},
+	integrations = {
+		["mason-lspconfig"] = true,
+	},
+})
+
 vim.lsp.config("lua_ls", {
 	cmd = { "lua-language-server" },
 	filetypes = { "lua" },
@@ -84,6 +98,7 @@ vim.lsp.config("lua_ls", {
 		},
 	},
 })
+
 vim.lsp.enable("lua_ls")
 vim.lsp.enable("clangd")
 vim.lsp.enable("rust_analyzer")
@@ -202,25 +217,21 @@ local term_buf = nil
 local term_win = nil
 
 function _G.toggle_bottom_terminal()
-	-- 1. Jika window sedang terbuka, tutup saja (sembunyikan)
 	if term_win and vim.api.nvim_win_is_valid(term_win) then
 		vim.api.nvim_win_hide(term_win)
 		term_win = nil
 		return
 	end
 
-	-- 2. Buat atau ambil buffer terminal yang sudah ada
 	if term_buf == nil or not vim.api.nvim_buf_is_valid(term_buf) then
 		term_buf = vim.api.nvim_create_buf(false, true)
 	end
 
-	-- 3. Kalkulasi Dimensi (Posisi Bawah)
 	local stats = vim.api.nvim_list_uis()[1]
-	local padding = 1 -- Jarak dari pinggir layar agar terlihat melayang
+	local padding = 1
 	local width = stats.width - (padding * 4) -- Hampir selebar layar
-	local height = 12 -- Tinggi terminal (bisa disesuaikan)
+	local height = 12
 
-	-- Menempatkan di baris paling bawah minus tinggi dan padding
 	local row = stats.height - height - 3
 	local col = padding * 2
 
@@ -231,24 +242,20 @@ function _G.toggle_bottom_terminal()
 		col = col,
 		row = row,
 		style = "minimal",
-		border = "rounded", -- Border melengkung ala Telescope
+		border = "rounded",
 		title = "  Terminal ",
 		title_pos = "left",
 	}
 
-	-- 4. Buka window
 	term_win = vim.api.nvim_open_win(term_buf, true, opts)
 
-	-- 5. Jalankan shell jika buffer masih baru
 	if vim.bo[term_buf].buftype ~= "terminal" then
 		vim.cmd("terminal")
 		vim.bo[term_buf].buflisted = false
 	end
 
-	-- 6. Masuk mode insert otomatis
 	vim.cmd("startinsert")
 end
 
--- Keymap tetap sama
 vim.keymap.set({ "n", "t" }, "<leader>t", "<CMD>lua toggle_bottom_terminal()<CR>", { noremap = true, silent = true })
 --:
