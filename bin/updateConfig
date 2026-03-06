@@ -1,138 +1,93 @@
 #!/bin/bash
 
-# --- Warna untuk UI ---
-GREEN='\033[0;32m'
+# --- Color Palette (Modern & Vibrant) ---
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 BLUE='\033[0;34m'
+GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
+WHITE='\033[1;37m'
+GRAY='\033[0;90m'
 NC='\033[0m'
 BOLD='\033[1m'
 
-# --- Konfigurasi Path ---
-# Mendapatkan path absolut folder dotfiles (asumsi script ada di dalam repo)
+# --- Configuration ---
 DOTFILES_REPO="$HOME/dotfiles"
 CONFIG_SRC="$HOME/.config"
 CONFIG_DEST="$DOTFILES_REPO/config"
 
-# --- DEKLARASI DATA (Edit di sini jika ingin menambah config) ---
-# Format: "Nama_Folder_Asal:Nama_Folder_Tujuan_di_Repo"
-CONFIG_FILES=(
-    "nvim:nvim"
+# --- Data Declaration ---
+# Format: "Asal:Tujuan:Mode" (merge/replace)
+CONFIG_LIST=(
+    "nvim:nvim:replace"
+#    "i3:i3:merge"
+#    "kitty:kitty:merge"
+#    "polybar:polybar:replace"
+#    "rofi:rofi:merge"
 )
 
-# Format: "Nama_File_Asal:Nama_File_Tujuan_di_Repo"
 HOME_FILES=(
     ".bashrc:bashrc"
+#    ".zshrc:zshrc"
     ".gitconfig:gitconfig"
 )
 
-header() {
-    echo -e "${BLUE}${BOLD}==========================================${NC}"
-    echo -e "${BLUE}${BOLD}    🚀 DOTFILES MANAGER (Default: Restore)${NC}"
-    echo -e "${BLUE}${BOLD}==========================================${NC}"
+# --- UI Helpers ---
+draw_sep() { echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; }
+
+print_status() {
+    local label=$1
+    local mode=$2
+    local status=$3
+    local color=$4
+    printf "  ${WHITE}%-18s${NC} ${GRAY}│${NC} %-10s ${GRAY}│${NC} ${color}%-10s${NC}\n" "$label" "$mode" "$status"
 }
 
-# --- FUNGSI RESTORE (DEFAULT) ---
+header() {
+    clear
+    echo -e "${MAGENTA}${BOLD}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
+    echo -e "${MAGENTA}${BOLD}┃${NC}          ${WHITE}✨  MODERN DOTFILES MANAGER  ✨${NC}          ${MAGENTA}${BOLD}┃${NC}"
+    echo -e "${MAGENTA}${BOLD}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
+}
+
+# --- Core Functions ---
 restore() {
     header
-    echo -e "${GREEN}[MODE: RESTORE (Repo -> Local)]${NC}"
-    
-    # 1. Restore .config Folders
-    echo -e "\n${BOLD}1. Memulihkan Folder .config${NC}"
-    echo "----------------------------------------------------"
-    for entry in "${CONFIG_FILES[@]}"; do
-        src="${entry%%:*}"; dest="${entry#*:}"
+    echo -e "${CYAN}${BOLD} 📥 DEPLOYING CONFIGURATIONS${NC}"
+    draw_sep
+    printf "  ${BOLD}%-18s ${GRAY}│${NC} %-10s ${GRAY}│${NC} %-10s${NC}\n" "TARGET" "MODE" "RESULT"
+    draw_sep
+
+    # .config folders
+    for entry in "${CONFIG_LIST[@]}"; do
+        IFS=":" read -r src dest mode <<< "$entry"
         if [ -d "$CONFIG_DEST/$dest" ]; then
             mkdir -p "$CONFIG_SRC/$src"
-            # rsync isi folder repo ke lokal
-            rsync -az --delete "$CONFIG_DEST/$dest/" "$CONFIG_SRC/$src/"
-            printf "  %-30s ${GREEN}✔️ Restored${NC}\n" "$src"
+            if [ "$mode" == "replace" ]; then
+                rsync -az --delete "$CONFIG_DEST/$dest/" "$CONFIG_SRC/$src/"
+                print_status "$src" "$mode" "REPLACED" "$RED"
+            else
+                rsync -az "$CONFIG_DEST/$dest/" "$CONFIG_SRC/$src/"
+                print_status "$src" "$mode" "MERGED" "$GREEN"
+            fi
         else
-            printf "  %-30s ${RED}❌ Missing in Repo${NC}\n" "$dest"
+            print_status "$src" "$mode" "MISSING" "$YELLOW"
         fi
     done
 
-    # 2. Restore Home Files
-    echo -e "\n${BOLD}2. Memulihkan file Home${NC}"
-    echo "----------------------------------------------------"
+    # Home files
     for entry in "${HOME_FILES[@]}"; do
-        src="${entry%%:*}"; dest="${entry#*:}"
+        IFS=":" read -r src dest <<< "$entry"
         if [ -f "$DOTFILES_REPO/$dest" ]; then
             mkdir -p "$(dirname "$HOME/$src")"
             rsync -az "$DOTFILES_REPO/$dest" "$HOME/$src"
-            printf "  %-30s ${GREEN}✔️ Restored${NC}\n" "$src"
-        else
-            printf "  %-30s ${RED}❌ Missing in Repo${NC}\n" "$dest"
+            print_status "$src" "file" "RESTORED" "$BLUE"
         fi
     done
-    echo -e "\n${GREEN}Selesai! Konfigurasi telah diperbarui.${NC}"
+    
+    draw_sep
+    echo -e "${GREEN}${BOLD} ✅ System synchronized successfully!${NC}\n"
 }
 
-# --- FUNGSI BACKUP (TAMBAHAN) ---
-backup() {
-    header
-    echo -e "${YELLOW}[MODE: BACKUP (Local -> Repo)]${NC}"
-    echo -e "Pilih lingkup backup:"
-    echo -e "1) Backup SEMUA yang terdaftar"
-    echo -e "2) Pilih Folder .config tertentu"
-    echo -e "3) Pilih File Home tertentu"
-    read -p "Masukkan pilihan (1/2/3): " choice
-
-    case $choice in
-        1)
-            # Backup .config
-            echo -e "\n${BLUE}Syncing .config folders...${NC}"
-            for entry in "${CONFIG_FILES[@]}"; do
-                src="${entry%%:*}"; dest="${entry#*:}"
-                if [ -d "$CONFIG_SRC/$src" ]; then
-                    mkdir -p "$CONFIG_DEST/$dest"
-                    rsync -az --delete "$CONFIG_SRC/$src/" "$CONFIG_DEST/$dest/"
-                    printf "  %-30s ${GREEN}✔️ Synced${NC}\n" "$src"
-                fi
-            done
-            # Backup Home
-            echo -e "\n${BLUE}Syncing Home files...${NC}"
-            for entry in "${HOME_FILES[@]}"; do
-                src="${entry%%:*}"; dest="${entry#*:}"
-                [ -f "$HOME/$src" ] && rsync -az "$HOME/$src" "$DOTFILES_REPO/$dest" && printf "  %-30s ${GREEN}✔️ Synced${NC}\n" "$src"
-            done
-            ;;
-        2)
-            echo -e "\nDaftar .config yang tersedia:"
-            for i in "${!CONFIG_FILES[@]}"; do echo "$i) ${CONFIG_FILES[$i]%%:*}"; done
-            read -p "Masukkan nomor (pisahkan spasi): " indices
-            for idx in $indices; do
-                entry="${CONFIG_FILES[$idx]}"
-                src="${entry%%:*}"; dest="${entry#*:}"
-                if [ -d "$CONFIG_SRC/$src" ]; then
-                    mkdir -p "$CONFIG_DEST/$dest"
-                    rsync -az --delete "$CONFIG_SRC/$src/" "$CONFIG_DEST/$dest/"
-                    echo -e "  ${GREEN}✔️ $src synced${NC}"
-                fi
-            done
-            ;;
-        3)
-            echo -e "\nDaftar file Home yang tersedia:"
-            for i in "${!HOME_FILES[@]}"; do echo "$i) ${HOME_FILES[$i]%%:*}"; done
-            read -p "Masukkan nomor (pisahkan spasi): " indices
-            for idx in $indices; do
-                entry="${HOME_FILES[$idx]}"
-                src="${entry%%:*}"; dest="${entry#*:}"
-                if [ -f "$HOME/$src" ]; then
-                    rsync -az "$HOME/$src" "$DOTFILES_REPO/$dest"
-                    echo -e "  ${GREEN}✔️ $src synced${NC}"
-                fi
-            done
-            ;;
-        *) echo "Batal.";;
-    esac
-}
-
-# --- LOGIKA EKSEKUSI ---
-# Jika argumen pertama adalah "backup", jalankan fungsi backup.
-# Jika tidak ada argumen atau argumen apapun selain backup, jalankan restore.
-if [ "$1" == "backup" ]; then
-    backup
-else
     restore
-fi
