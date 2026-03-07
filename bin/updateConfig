@@ -31,6 +31,7 @@ HOME_FILES=(
     ".bashrc:bashrc"
 #    ".zshrc:zshrc"
     ".gitconfig:gitconfig"
+    ".tmux.conf:tmux.conf"
 )
 
 # --- UI Helpers ---
