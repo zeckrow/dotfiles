@@ -229,7 +229,7 @@ vim.pack.add({
 	{ src = "https://github.com/stevearc/conform.nvim" },
 	{ src = "https://github.com/mason-org/mason.nvim" },
 	{ src = "https://github.com/neovim/nvim-lspconfig" },
-	{ src = "https://github.com/saghen/blink.cmp", version = "^1.0" },
+	{ src = "https://github.com/saghen/blink.cmp", version = "v1.5.0" },
 })
 require("blink.cmp").setup({
 	keymap = { preset = "default" },
@@ -314,3 +314,12 @@ vim.api.nvim_create_autocmd("CursorHold", {
 	end,
 })
 vim.opt.updatetime = 100
+--: telescope
+vim.pack.add({
+	{ src = "https://github.com/nvim-telescope/telescope.nvim" },
+	{ src = "https://github.com/nvim-lua/plenary.nvim" },
+})
+local builtin = require("telescope.builtin")
+vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope find files" })
+vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
+vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telescope help tags" })
