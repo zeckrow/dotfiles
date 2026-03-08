@@ -27,6 +27,8 @@ keymap("n", "<leader>x", ":bdelete<CR>", { desc = "Quit" })
 keymap("i", "jk", "<Esc>", { desc = "Quit" })
 keymap("n", "<Tab>", ":bnext<CR>")
 keymap("n", "<S-Tab>", ":bprevious<CR>")
+keymap("n", "<leader>h", ":lua vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())<CR>")
+
 --::
 --::floating terminal
 local term_buf = nil
