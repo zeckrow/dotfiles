@@ -190,6 +190,7 @@ vim.pack.add({
 	{ src = "https://github.com/mason-org/mason.nvim" },
 	{ src = "https://github.com/neovim/nvim-lspconfig" },
 	{ src = "https://github.com/saghen/blink.cmp", version = "v1.5.0" },
+	{ src = "https://github.com/rafamadriz/friendly-snippets" },
 })
 require("blink.cmp").setup({
 	keymap = { preset = "default" },
