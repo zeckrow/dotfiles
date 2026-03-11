@@ -1,143 +1,110 @@
 {
-    // --- VIM CORE CONFIGURATION ---
-    "vim.leader": "<space>",
-    "vim.useSystemClipboard": true,
-    "vim.hlsearch": true,
-    "vim.incsearch": true,
-    "vim.easymotion": true,
-    "vim.sneak": true,
-    "vim.useCtrlKeys": true,
-    // --- KEYBINDINGS (NORMAL MODE) ---
-    "vim.normalModeKeyBindingsNonRecursive": [
-        // Navigasi Editor (Buffer)
-        {
-            "before": [
-                "L"
-            ],
-            "commands": [
-                "workbench.action.nextEditor"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "f",
-                "f"
-            ],
-            "commands": [
-                "workbench.action.quickOpen"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "x"
-            ],
-            "commands": [
-                "workbench.action.closeActiveEditor"
-            ]
-        },
-        {
-            "before": [
-                "H"
-            ],
-            "commands": [
-                "workbench.action.previousEditor"
-            ]
-        },
-        // Window Management (Splits)
-        {
-            "before": [
-                "<leader>",
-                "v"
-            ],
-            "commands": [
-                "workbench.action.splitEditor"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "s"
-            ],
-            "commands": [
-                "workbench.action.splitEditorDown"
-            ]
-        },
-        // File & Terminal Management
-        {
-            "before": [
-                "<leader>",
-                "e"
-            ],
-            "commands": [
-                "workbench.view.explorer"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "t"
-            ],
-            "commands": [
-                "workbench.action.terminal.toggleTerminal"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "w"
-            ],
-            "commands": [
-                ":w!"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "q"
-            ],
-            "commands": [
-                ":q!"
-            ]
-        },
-        {
-            "before": [
-                "<leader>",
-                "h"
-            ],
-            "commands": [
-                ":noh"
-            ]
-        }
-    ],
-    // --- INSERT MODE QUICK ESCAPE ---
-    "vim.insertModeKeyBindings": [
-        {
-            "before": [
-                "j",
-                "j"
-            ],
-            "after": [
-                "<Esc>"
-            ]
-        }
-    ],
-    // --- TERMINAL BEHAVIOR ---
-    // Memastikan Ctrl di terminal tidak bentrok dengan Vim mode
-    "terminal.integrated.sendKeybindingsToShell": true,
-    "terminal.integrated.cursorStyle": "line",
-    // --- UI & AESTHETICS (Minimalist) ---
-    "editor.lineNumbers": "relative", // Memudahkan lompatan baris ala Vim
-    "editor.minimap.enabled": false, // Tampilan lebih bersih
-    "editor.fontFamily": "'SFMono Nerd Font', 'Fira Code'",
-    "editor.fontSize": 14,
-    "editor.cursorStyle": "block",
-    "editor.cursorBlinking": "solid",
-    "workbench.sideBar.location": "left",
-    "workbench.startupEditor": "none",
-    // --- FILE SPECIFIC (Optional) ---
-    "files.autoSave": "onFocusChange",
-    "editor.formatOnSave": true,
-    "workbench.activityBar.location": "hidden"
+  // --- VIM CORE CONFIGURATION ---
+  "vim.leader": "<space>",
+  "vim.useSystemClipboard": true,
+  "vim.hlsearch": true,
+  "vim.incsearch": true,
+  "vim.easymotion": true,
+  "vim.sneak": true,
+  "vim.useCtrlKeys": true,
+  "vim.handleKeys": {
+    "<C-y>": false
+  },
+  // --- KEYBINDINGS (NORMAL MODE) ---
+  "vim.normalModeKeyBindingsNonRecursive": [
+    // Navigasi Editor (Buffer)
+    {
+      "key": "ctrl+n",
+      "command": "selectNextSuggestion",
+      "when": "suggestWidgetVisible && textInputFocus"
+    },
+    {
+      "key": "ctrl+p",
+      "command": "selectPrevSuggestion",
+      "when": "suggestWidgetVisible && textInputFocus"
+    },
+    {
+      "key": "ctrl+y",
+      "command": "acceptSelectedSuggestion",
+      "when": "suggestWidgetVisible && textInputFocus"
+    },
+    {
+      "before": ["<Tab>"],
+      "commands": ["workbench.action.nextEditor"]
+    },
+    {
+      "before": ["<S-Tab>"],
+      "commands": ["workbench.action.previousEditor"]
+    },
+    {
+      "before": ["L"],
+      "commands": ["workbench.action.nextEditor"]
+    },
+    {
+      "before": ["<leader>", "f", "f"],
+      "commands": ["workbench.action.quickOpen"]
+    },
+    {
+      "before": ["<leader>", "x"],
+      "commands": ["workbench.action.closeActiveEditor"]
+    },
+    {
+      "before": ["H"],
+      "commands": ["workbench.action.previousEditor"]
+    },
+    // Window Management (Splits)
+    {
+      "before": ["<leader>", "v"],
+      "commands": ["workbench.action.splitEditor"]
+    },
+    {
+      "before": ["<leader>", "s"],
+      "commands": ["workbench.action.splitEditorDown"]
+    },
+    // File & Terminal Management
+    {
+      "before": ["<leader>", "e"],
+      "commands": ["workbench.view.explorer"]
+    },
+    {
+      "before": ["<leader>", "t"],
+      "commands": ["workbench.action.terminal.toggleTerminal"]
+    },
+    {
+      "before": ["<leader>", "w"],
+      "commands": [":w!"]
+    },
+    {
+      "before": ["<leader>", "q"],
+      "commands": [":q!"]
+    },
+    {
+      "before": ["<leader>", "h"],
+      "commands": [":noh"]
+    }
+  ],
+  // --- INSERT MODE QUICK ESCAPE ---
+  "vim.insertModeKeyBindings": [
+    {
+      "before": ["j", "k"],
+      "after": ["<Esc>"]
+    }
+  ],
+  // --- TERMINAL BEHAVIOR ---
+  // Memastikan Ctrl di terminal tidak bentrok dengan Vim mode
+  "terminal.integrated.sendKeybindingsToShell": true,
+  "terminal.integrated.cursorStyle": "line",
+  // --- UI & AESTHETICS (Minimalist) ---
+  "editor.lineNumbers": "relative", // Memudahkan lompatan baris ala Vim
+  "editor.minimap.enabled": false, // Tampilan lebih bersih
+  "editor.fontFamily": "'SFMono Nerd Font', 'Fira Code'",
+  "editor.fontSize": 14,
+  "editor.cursorStyle": "block",
+  "editor.cursorBlinking": "solid",
+  "workbench.sideBar.location": "left",
+  "workbench.startupEditor": "none",
+  // --- FILE SPECIFIC (Optional) ---
+  "files.autoSave": "onFocusChange",
+  "editor.formatOnSave": true,
+  "workbench.activityBar.location": "hidden"
 }
