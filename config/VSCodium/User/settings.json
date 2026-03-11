@@ -1,5 +1,6 @@
 {
   // --- VIM CORE CONFIGURATION ---
+
   "workbench.editor.editorActionsLocation": "hidden",
   "workbench.layoutControl.enabled": false,
   "workbench.statusBar.visible": true, // Ke
