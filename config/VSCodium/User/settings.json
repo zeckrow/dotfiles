@@ -1,5 +1,20 @@
 {
+  "apc.electron": {
+    "transparent": true,
+    "opacity": 0.9
+  },
   // --- VIM CORE CONFIGURATION ---
+  "workbench.editor.editorActionsLocation": "hidden",
+  "workbench.layoutControl.enabled": false,
+  "workbench.editor.showTabs": "none",
+  "workbench.statusBar.visible": true, // Ke
+  "workbench.editor.showTabs": "none", // Menghilangkan baris tab di atas
+  "workbench.activityBar.visible": false, // Menghilangkan baris ikon di paling kiri
+  "workbench.sideBar.location": "left",
+  "window.menuBarVisibility": "toggle", // Menu (File, Edit) hanya muncul saat tekan Alt
+  "editor.minimap.enabled": false,
+  "workbench.navigationControl.enabled": false,
+  "window.commandCenter": false,
   "vim.leader": "<space>",
   "vim.useSystemClipboard": true,
   "vim.hlsearch": true,
