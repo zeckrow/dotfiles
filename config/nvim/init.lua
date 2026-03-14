@@ -340,6 +340,7 @@ require("nvim-treesitter").install({
   "markdown_inline",
   "vimdoc",
   "regex",
+  "tmux",
 })
 vim.api.nvim_create_autocmd("BufWrite", {
   callback = function()
