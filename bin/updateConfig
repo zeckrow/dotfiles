@@ -21,6 +21,7 @@ CONFIG_DEST="$DOTFILES_REPO/config"
 # Format: "Asal:Tujuan:Mode" (merge/replace)
 CONFIG_LIST=(
     "nvim:nvim:merge"
+    "awesome:awesome:merge"
     "kitty:kitty:merge"
     "niri:niri:merge"
     "VSCodium:VSCodium:merge"
