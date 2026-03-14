@@ -1,0 +1,63 @@
+#!/usr/local/bin/bash
+
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+CURRENT_DIR=$(tmux display-message -p "#{pane_current_path}")
+
+get_list() {
+    # 1. Ambil semua sesi aktif dan simpan nama-namanya untuk filter
+    SESSIONS=$(tmux list-sessions -F '#{session_name}' 2>/dev/null)
+
+    # 2. List Sesi yang sedang berjalan
+    tmux list-sessions -F '#{?session_attached,[S*],[S ]} #{session_name}' 2>/dev/null
+
+    # 3. List Folder, tapi filter yang sudah jadi sesi
+    ls -d "$CURRENT_DIR"/*/ 2>/dev/null | while read -r line; do
+        FOLDER_NAME=$(basename "$line")
+        
+        # Cek apakah FOLDER_NAME ada di dalam daftar SESSIONS
+        if ! echo "$SESSIONS" | grep -qwx "$FOLDER_NAME"; then
+            printf "[F ] %s\n" "$FOLDER_NAME"
+        fi
+    done
+}
+
+# Fungsi utama untuk fzf
+run_fzf() {
+    (
+        # Kita panggil get_list lalu beri bobot urutan dengan awk
+        get_list
+    ) | awk '{
+        if ($1 == "[S*]") print "0 " $0;
+        else if ($1 == "[S ]") print "1 " $0;
+        else print "2 " $0;
+    }' | sort -k1,1 | cut -d' ' -f2-
+}
+
+export -f get_list
+export -f run_fzf
+
+CHOICE=$(run_fzf | fzf --reverse \
+    --header "Path: $CURRENT_DIR | CTRL-X: Kill" \
+    --bind "j:down,k:up" \
+    --bind "ctrl-x:execute(
+        target=\$(echo {} | sed 's/^.... //')
+        label=\$(echo {} | cut -c1-4)
+        if [[ \$label == '[S'* ]]; then
+            tmux kill-session -t \"\$target\"
+        fi
+    )+reload(bash -c run_fzf)")
+
+[[ -z "$CHOICE" ]] && exit
+
+LABEL=$(echo "$CHOICE" | cut -c1-4)
+NAME=$(echo "$CHOICE" | sed 's/^.... //')
+
+if [[ "$LABEL" == "[F ]" ]]; then
+    TARGET_PATH="$CURRENT_DIR/$NAME"
+    if ! tmux has-session -t "$NAME" 2>/dev/null; then
+        tmux new-session -d -s "$NAME" -c "$TARGET_PATH"
+    fi
+    tmux switch-client -t "$NAME"
+else
+    tmux switch-client -t "$NAME"
+fi
